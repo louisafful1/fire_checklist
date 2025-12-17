@@ -100,8 +100,7 @@ export default function Login() {
 
                     {/* Footer */}
                     <div className="mt-8 text-center text-sm text-slate-500">
-                        <p>Fire Safety Inspection System</p>
-                        <p className="mt-1">© 2025 Adamus Resources</p>
+                        <p className="mt-1">© 2025 Adamus Resources Ltd.</p>
                     </div>
                 </div>
             </div>

@@ -8,7 +8,7 @@ import { Inspection } from '../db/models/Inspection';
 import { User } from '../db/models/User';
 import { connectDB } from '../db/connect';
 import { requireUserId } from '../utils/session.server';
-import {  InspectionStatus, type InspectionReport } from '~/types';
+import { InspectionStatus, type InspectionReport } from '~/types';
 
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -329,7 +329,81 @@ export default function NewInspection() {
                         </div>
                     </div>
 
-                    <div className="overflow-x-auto">
+                    {/* Mobile View */}
+                    <div className="md:hidden border rounded-lg overflow-hidden border-slate-200 divide-y divide-slate-200">
+                        {report.sectionA.map((item) => (
+                            <div key={item.id} className="bg-white p-4 hover:bg-slate-50 transition-colors">
+                                {item.type === 'input' ? (
+                                    <>
+                                        <div className="font-medium text-slate-700 mb-3">{item.label}</div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm text-slate-500 font-mono whitespace-nowrap">READING:</span>
+                                            <input
+                                                type="number"
+                                                placeholder="Enter Value"
+                                                className={`flex-1 p-2 border rounded focus:ring-2 focus:ring-gold-500 outline-none w-full ${validationErrors.has(item.id) ? 'border-red-500 bg-red-50' : 'border-slate-300'}`}
+                                                value={item.value || ''}
+                                                onChange={(e) => handleSectionAChange(item.id, 'value', e.target.value)}
+                                                onKeyDown={(e) => ["e", "E", "+", "-"].includes(e.key) && e.preventDefault()}
+                                                required
+                                            />
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <div className="font-medium text-slate-700">{item.label}</div>
+                                            <div className="flex gap-3">
+                                                {/* OK Option */}
+                                                <label className="cursor-pointer flex items-center">
+                                                    <input
+                                                        type="radio"
+                                                        name={`status-mobile-${item.id}`}
+                                                        className="peer sr-only"
+                                                        checked={item.status === InspectionStatus.OK}
+                                                        onChange={() => handleSectionAChange(item.id, 'status', InspectionStatus.OK)}
+                                                    />
+                                                    <div className="w-8 h-8 rounded border-2 border-slate-300 peer-checked:bg-green-500 peer-checked:border-green-500 text-white flex items-center justify-center transition-all">
+                                                        <CheckCircle size={18} />
+                                                    </div>
+                                                </label>
+
+                                                {/* Defect Option */}
+                                                <label className="cursor-pointer flex items-center">
+                                                    <input
+                                                        type="radio"
+                                                        name={`status-mobile-${item.id}`}
+                                                        className="peer sr-only"
+                                                        checked={item.status === InspectionStatus.DEFECTIVE}
+                                                        onChange={() => handleSectionAChange(item.id, 'status', InspectionStatus.DEFECTIVE)}
+                                                    />
+                                                    <div className="w-8 h-8 rounded border-2 border-slate-300 peer-checked:bg-red-500 peer-checked:border-red-500 text-white flex items-center justify-center transition-all">
+                                                        <XCircle size={18} />
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        {item.status === InspectionStatus.DEFECTIVE && (
+                                            <input
+                                                type="text"
+                                                placeholder="Describe defect..."
+                                                value={item.remarks}
+                                                onChange={(e) => handleSectionAChange(item.id, 'remarks', e.target.value)}
+                                                className={`w-full p-2 border rounded outline-none transition-colors ${validationErrors.has(`${item.id}-remarks`)
+                                                    ? 'bg-red-50 border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                                                    : 'bg-white border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                                                    }`}
+                                            />
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Desktop View */}
+                    <div className="hidden md:block overflow-x-auto border rounded-lg border-slate-200">
                         <table className="w-full min-w-[600px] border-collapse">
                             <thead>
                                 <tr className="bg-slate-100 text-slate-600 text-sm uppercase text-left">
@@ -341,9 +415,8 @@ export default function NewInspection() {
                             </thead>
                             <tbody className="divide-y divide-slate-200">
                                 {report.sectionA.map((item) => (
-                                    <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+                                    <tr key={item.id} className="hover:bg-slate-50 transition-colors bg-white">
                                         <td className="p-3 font-medium text-slate-700">{item.label}</td>
-
                                         {item.type === 'input' ? (
                                             <td colSpan={3} className="p-3">
                                                 <div className="flex items-center gap-2">
@@ -457,7 +530,81 @@ export default function NewInspection() {
                         </div>
                     </div>
 
-                    <div className="overflow-x-auto">
+                    {/* Mobile View */}
+                    <div className="md:hidden border rounded-lg overflow-hidden border-slate-200 divide-y divide-slate-200">
+                        {report.sectionB.map((item) => (
+                            <div key={item.id} className="bg-white p-4 hover:bg-slate-50 transition-colors">
+                                {item.type === 'input' ? (
+                                    <>
+                                        <div className="font-medium text-slate-700 mb-3">{item.label}</div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm text-slate-500 font-mono whitespace-nowrap">READING:</span>
+                                            <input
+                                                type="number"
+                                                placeholder="Enter Value"
+                                                className={`flex-1 p-2 border rounded focus:ring-2 focus:ring-gold-500 outline-none w-full ${validationErrors.has(item.id) ? 'border-red-500 bg-red-50' : 'border-slate-300'}`}
+                                                value={item.value || ''}
+                                                onChange={(e) => handleSectionBChange(item.id, 'value', e.target.value)}
+                                                onKeyDown={(e) => ["e", "E", "+", "-"].includes(e.key) && e.preventDefault()}
+                                                required
+                                            />
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <div className="font-medium text-slate-700">{item.label}</div>
+                                            <div className="flex gap-3">
+                                                {/* OK Option */}
+                                                <label className="cursor-pointer flex items-center">
+                                                    <input
+                                                        type="radio"
+                                                        name={`status-mobile-b-${item.id}`}
+                                                        className="peer sr-only"
+                                                        checked={item.status === InspectionStatus.OK}
+                                                        onChange={() => handleSectionBChange(item.id, 'status', InspectionStatus.OK)}
+                                                    />
+                                                    <div className="w-8 h-8 rounded border-2 border-slate-300 peer-checked:bg-green-500 peer-checked:border-green-500 text-white flex items-center justify-center transition-all">
+                                                        <CheckCircle size={18} />
+                                                    </div>
+                                                </label>
+
+                                                {/* Defect Option */}
+                                                <label className="cursor-pointer flex items-center">
+                                                    <input
+                                                        type="radio"
+                                                        name={`status-mobile-b-${item.id}`}
+                                                        className="peer sr-only"
+                                                        checked={item.status === InspectionStatus.DEFECTIVE}
+                                                        onChange={() => handleSectionBChange(item.id, 'status', InspectionStatus.DEFECTIVE)}
+                                                    />
+                                                    <div className="w-8 h-8 rounded border-2 border-slate-300 peer-checked:bg-red-500 peer-checked:border-red-500 text-white flex items-center justify-center transition-all">
+                                                        <XCircle size={18} />
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        {item.status === InspectionStatus.DEFECTIVE && (
+                                            <input
+                                                type="text"
+                                                placeholder="Describe defect..."
+                                                value={item.remarks}
+                                                onChange={(e) => handleSectionBChange(item.id, 'remarks', e.target.value)}
+                                                className={`w-full p-2 border rounded outline-none transition-colors ${validationErrors.has(`${item.id}-remarks`)
+                                                    ? 'bg-red-50 border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                                                    : 'bg-white border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                                                    }`}
+                                            />
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Desktop View */}
+                    <div className="hidden md:block overflow-x-auto border rounded-lg border-slate-200">
                         <table className="w-full min-w-[600px] border-collapse">
                             <thead>
                                 <tr className="bg-slate-100 text-slate-600 text-sm uppercase text-left">
@@ -469,9 +616,8 @@ export default function NewInspection() {
                             </thead>
                             <tbody className="divide-y divide-slate-200">
                                 {report.sectionB.map((item) => (
-                                    <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+                                    <tr key={item.id} className="hover:bg-slate-50 transition-colors bg-white">
                                         <td className="p-3 font-medium text-slate-700">{item.label}</td>
-
                                         {item.type === 'input' ? (
                                             <td colSpan={3} className="p-3">
                                                 <div className="flex items-center gap-2">
@@ -522,7 +668,7 @@ export default function NewInspection() {
                                                         type="text"
                                                         placeholder={item.status === InspectionStatus.DEFECTIVE ? "Describe defect..." : "N/A"}
                                                         disabled={item.status !== InspectionStatus.DEFECTIVE}
-                                                        value={item.remarks || ''}
+                                                        value={item.remarks}
                                                         onChange={(e) => handleSectionBChange(item.id, 'remarks', e.target.value)}
                                                         className={`w-full p-2 border rounded outline-none transition-colors ${validationErrors.has(`${item.id}-remarks`)
                                                             ? 'bg-red-50 border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-200'
