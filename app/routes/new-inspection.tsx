@@ -58,7 +58,8 @@ export default function NewInspection() {
             vehicleReg: 'WR 1838-11',
             date: new Date().toISOString().split('T')[0],
             roadWorthiness: 'Valid',
-            insurance: 'Valid'
+            insurance: 'Valid',
+            crew: ''
         },
         sectionA: [...INITIAL_SECTION_A],
         sectionB: [...INITIAL_SECTION_B],
@@ -130,6 +131,7 @@ export default function NewInspection() {
         if (!report.header.date) errors.add('date');
         if (!report.header.roadWorthiness || report.header.roadWorthiness.trim() === '') errors.add('roadWorthiness');
         if (!report.header.insurance || report.header.insurance.trim() === '') errors.add('insurance');
+        if (!report.header.crew || report.header.crew.trim() === '') errors.add('crew');
 
         const incompleteItems = report.sectionA.filter(i => {
             if (i.type === 'check') return !i.status;
@@ -227,7 +229,20 @@ export default function NewInspection() {
                     <h3 className="text-lg md:text-xl font-semibold text-slate-800">{FORM_TITLE}</h3>
                 </div>
 
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-lg border border-slate-200">
+                    <div className="md:col-span-2">
+                        <label className="block text-sm font-semibold text-slate-600 mb-1">Crew:</label>
+                        <select
+                            value={report.header.crew}
+                            onChange={(e) => handleHeaderChange('crew', e.target.value)}
+                            className={`w-full p-3 border rounded-md focus:ring-2 focus:ring-gold-500 focus:border-gold-500 bg-white ${validationErrors.has('crew') ? 'border-red-500 bg-red-50' : 'border-slate-300'}`}
+                        >
+                            <option value="" disabled>Select Crew...</option>
+                            <option value="Day Crew">Day Crew</option>
+                            <option value="Night Crew">Night Crew</option>
+                        </select>
+                    </div>
                     <div>
                         <label className="block text-sm font-semibold text-slate-600 mb-1">Vehicle Registration No.</label>
                         <select
@@ -279,6 +294,7 @@ export default function NewInspection() {
                         </p>
                     </div>
                 </div>
+
 
                 <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded text-sm text-yellow-800">
                     <p className="font-bold flex items-center gap-2"><AlertTriangle size={16} /> INSTRUCTIONS</p>

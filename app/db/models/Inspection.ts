@@ -7,7 +7,8 @@ const inspectionSchema = new mongoose.Schema({
         vehicleReg: String,
         date: String,
         roadWorthiness: String,
-        insurance: String
+        insurance: String,
+        crew: String
     },
     sectionA: [{
         id: String,

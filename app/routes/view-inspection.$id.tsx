@@ -77,7 +77,11 @@ export default function ViewInspection() {
                         <span className="font-bold text-slate-500 block text-xs uppercase">Vehicle Insurance</span>
                         <span className="text-lg font-medium">{report.header.insurance || 'N/A'}</span>
                     </div>
-                    <div className="border-b border-slate-200 pb-1 col-span-2">
+                    <div className="border-b border-slate-200 pb-1">
+                        <span className="font-bold text-slate-500 block text-xs uppercase">Crew</span>
+                        <span className="text-lg font-medium">{report.header.crew || 'N/A'}</span>
+                    </div>
+                    <div className="border-b border-slate-200 pb-1">
                         <span className="font-bold text-slate-500 block text-xs uppercase">Inspected by</span>
                         <span className="text-lg font-medium">{report.inspectorName || 'N/A'}</span>
                     </div>

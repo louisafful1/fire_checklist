@@ -26,6 +26,7 @@ export interface HeaderData {
   date: string;
   roadWorthiness: string;
   insurance: string;
+  crew: string;
 }
 
 

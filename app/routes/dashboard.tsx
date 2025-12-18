@@ -20,13 +20,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function Dashboard() {
     const { inspections } = useLoaderData() as { inspections: any[] };
     const [searchTerm, setSearchTerm] = useState('');
+    const [crewFilter, setCrewFilter] = useState('All');
 
     const filteredInspections = inspections.filter(inspection => {
         const matchesSearch =
             (inspection.header?.vehicleReg?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
             (inspection.inspectorName?.toLowerCase().includes(searchTerm.toLowerCase()) || '');
 
-        return matchesSearch;
+        const matchesCrew = crewFilter === 'All' || inspection.header?.crew === crewFilter;
+
+        return matchesSearch && matchesCrew;
     });
 
     return (
@@ -63,16 +66,29 @@ export default function Dashboard() {
 
             {/* Inspections List */}
             <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-slate-100">
-                <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-white sticky top-20 z-30">
-                    <h2 className="text-lg font-bold text-slate-800">Recent Inspections</h2>
-                    <div className="relative w-full md:w-auto">
-                        <input
-                            type="text"
-                            placeholder="Search inspections..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-nzema-red focus:ring-1 focus:ring-nzema-red text-sm w-full md:w-64"
-                        />
+                <div className="p-6 border-b border-slate-100 bg-white sticky top-20 z-30">
+                    <h2 className="text-lg font-bold text-slate-800 mb-4">Recent Inspections</h2>
+                    <div className="flex justify-between items-center gap-4">
+                        <div className="relative">
+                            <input
+                                type="text"
+                                placeholder="Search..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-nzema-red focus:ring-1 focus:ring-nzema-red text-sm w-40 md:w-64"
+                            />
+                        </div>
+                        <div>
+                            <select
+                                value={crewFilter}
+                                onChange={(e) => setCrewFilter(e.target.value)}
+                                className="px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-nzema-red focus:ring-1 focus:ring-nzema-red text-sm bg-white w-auto"
+                            >
+                                <option value="All">All Crews</option>
+                                <option value="Day Crew">Day Crew</option>
+                                <option value="Night Crew">Night Crew</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
