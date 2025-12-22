@@ -1,5 +1,5 @@
 import { useLoaderData, Link } from "react-router";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { LoaderFunctionArgs } from "react-router";
 import { format } from 'date-fns';
 import { FileText, Plus, Calendar, CheckCircle, AlertCircle } from 'lucide-react';
@@ -25,6 +25,8 @@ export default function Dashboard() {
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
     const [showFilters, setShowFilters] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(10);
 
     const filteredInspections = inspections.filter(inspection => {
         const matchesSearch =
@@ -40,6 +42,17 @@ export default function Dashboard() {
 
         return matchesSearch && matchesCrew && matchesVehicle && matchesDateFrom && matchesDateTo;
     });
+
+    // Pagination calculations
+    const totalPages = Math.ceil(filteredInspections.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedInspections = filteredInspections.slice(startIndex, endIndex);
+
+    // Reset to page 1 when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, crewFilter, vehicleFilter, dateFrom, dateTo]);
 
     return (
         <div className="space-y-6">
@@ -184,7 +197,7 @@ export default function Dashboard() {
                                     </td>
                                 </tr>
                             ) : (
-                                filteredInspections.map((inspection) => (
+                                paginatedInspections.map((inspection) => (
                                     <tr key={inspection._id} className="hover:bg-slate-50 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="font-medium text-slate-800">{inspection.header?.vehicleReg || 'N/A'}</div>
@@ -239,7 +252,7 @@ export default function Dashboard() {
                             No inspections found matching your filters.
                         </div>
                     ) : (
-                        filteredInspections.map((inspection) => (
+                        paginatedInspections.map((inspection) => (
                             <div key={inspection._id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
                                 <div className="flex justify-between items-center">
                                     <div className="flex items-center gap-2 text-slate-600 font-medium">
@@ -284,6 +297,67 @@ export default function Dashboard() {
                         ))
                     )}
                 </div>
+
+                {/* Pagination Controls */}
+                {filteredInspections.length > 0 && (
+                    <div className="p-6 border-t border-slate-100 bg-white">
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                            {/* Showing X-Y of Z */}
+                            <div className="text-sm text-slate-600">
+                                Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
+                                <span className="font-medium">{Math.min(endIndex, filteredInspections.length)}</span> of{' '}
+                                <span className="font-medium">{filteredInspections.length}</span> inspections
+                            </div>
+
+                            {/* Page Controls */}
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                    disabled={currentPage === 1}
+                                    className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    Previous
+                                </button>
+
+                                {/* Page Numbers */}
+                                <div className="flex items-center gap-1">
+                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                                        // Show first page, last page, current page, and pages around current
+                                        if (
+                                            page === 1 ||
+                                            page === totalPages ||
+                                            (page >= currentPage - 1 && page <= currentPage + 1)
+                                        ) {
+                                            return (
+                                                <button
+                                                    key={page}
+                                                    onClick={() => setCurrentPage(page)}
+                                                    className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${currentPage === page
+                                                            ? 'bg-nzema-red text-white'
+                                                            : 'text-slate-700 bg-white border border-slate-300 hover:bg-slate-50'
+                                                        }`}
+                                                >
+                                                    {page}
+                                                </button>
+                                            );
+                                        } else if (page === currentPage - 2 || page === currentPage + 2) {
+                                            return <span key={page} className="px-2 text-slate-400">...</span>;
+                                        }
+                                        return null;
+                                    })}
+                                </div>
+
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                    disabled={currentPage === totalPages}
+                                    className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
