@@ -22,6 +22,9 @@ export default function Dashboard() {
     const [searchTerm, setSearchTerm] = useState('');
     const [crewFilter, setCrewFilter] = useState('All');
     const [vehicleFilter, setVehicleFilter] = useState('All');
+    const [dateFrom, setDateFrom] = useState('');
+    const [dateTo, setDateTo] = useState('');
+    const [showFilters, setShowFilters] = useState(true);
 
     const filteredInspections = inspections.filter(inspection => {
         const matchesSearch =
@@ -31,7 +34,11 @@ export default function Dashboard() {
         const matchesCrew = crewFilter === 'All' || inspection.header?.crew === crewFilter;
         const matchesVehicle = vehicleFilter === 'All' || inspection.header?.vehicleReg === vehicleFilter;
 
-        return matchesSearch && matchesCrew && matchesVehicle;
+        const inspectionDate = inspection.header?.date;
+        const matchesDateFrom = !dateFrom || (inspectionDate && inspectionDate >= dateFrom);
+        const matchesDateTo = !dateTo || (inspectionDate && inspectionDate <= dateTo);
+
+        return matchesSearch && matchesCrew && matchesVehicle && matchesDateFrom && matchesDateTo;
     });
 
     return (
@@ -69,36 +76,92 @@ export default function Dashboard() {
             {/* Inspections List */}
             <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-slate-100">
                 <div className="p-6 border-b border-slate-100 bg-white sticky top-20 z-30">
-                    <h2 className="text-lg font-bold text-slate-800 mb-4">Recent Inspections</h2>
-                    <div className="flex flex-col md:flex-row md:items-center gap-3">
-                        <select
-                            value={vehicleFilter}
-                            onChange={(e) => setVehicleFilter(e.target.value)}
-                            className="flex-1 px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-nzema-red focus:ring-1 focus:ring-nzema-red text-sm bg-white"
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-bold text-slate-800">Recent Inspections</h2>
+                        <button
+                            onClick={() => setShowFilters(!showFilters)}
+                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-nzema-red bg-slate-100 border border-slate-200 rounded-lg hover:bg-slate-200 transition-all duration-200"
                         >
-                            <option value="All">All Vehicles</option>
-                            <option value="WR 1838-11">WR 1838-11</option>
-                            <option value="ER 2346-11">ER 2346-11</option>
-                        </select>
-                        <div className="relative flex-1">
-                            <input
-                                type="text"
-                                placeholder="Search..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-nzema-red focus:ring-1 focus:ring-nzema-red text-sm w-full"
-                            />
-                        </div>
-                        <select
-                            value={crewFilter}
-                            onChange={(e) => setCrewFilter(e.target.value)}
-                            className="flex-1 px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-nzema-red focus:ring-1 focus:ring-nzema-red text-sm bg-white"
-                        >
-                            <option value="All">All Crews</option>
-                            <option value="Day Crew">Day Crew</option>
-                            <option value="Night Crew">Night Crew</option>
-                        </select>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                                />
+                            </svg>
+                            {showFilters ? 'Hide Filters' : 'Show Filters'}
+                        </button>
                     </div>
+                    {showFilters && (
+                        <div className="space-y-4">
+                            {/* Row 1: Vehicle, Search, Crew */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-2">Vehicle</label>
+                                    <select
+                                        value={vehicleFilter}
+                                        onChange={(e) => setVehicleFilter(e.target.value)}
+                                        className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-nzema-red focus:ring-1 focus:ring-nzema-red text-sm bg-white"
+                                    >
+                                        <option value="All">All Vehicles</option>
+                                        <option value="WR 1838-11">WR 1838-11</option>
+                                        <option value="ER 2346-11">ER 2346-11</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-2">Search</label>
+                                    <input
+                                        type="text"
+                                        placeholder="Search by vehicle or inspector..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-nzema-red focus:ring-1 focus:ring-nzema-red text-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-2">Crew</label>
+                                    <select
+                                        value={crewFilter}
+                                        onChange={(e) => setCrewFilter(e.target.value)}
+                                        className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-nzema-red focus:ring-1 focus:ring-nzema-red text-sm bg-white"
+                                    >
+                                        <option value="All">All Crews</option>
+                                        <option value="Day Crew">Day Crew</option>
+                                        <option value="Night Crew">Night Crew</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Row 2: Date From and Date To */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-2">Date From</label>
+                                    <input
+                                        type="date"
+                                        value={dateFrom}
+                                        onChange={(e) => setDateFrom(e.target.value)}
+                                        className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-nzema-red focus:ring-1 focus:ring-nzema-red text-sm bg-white"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-2">Date To</label>
+                                    <input
+                                        type="date"
+                                        value={dateTo}
+                                        onChange={(e) => setDateTo(e.target.value)}
+                                        className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-nzema-red focus:ring-1 focus:ring-nzema-red text-sm bg-white"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Desktop View (Table) */}
