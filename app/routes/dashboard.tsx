@@ -10,7 +10,7 @@ import { requireUserId } from '../utils/session.server';
 export async function loader({ request }: LoaderFunctionArgs) {
     await requireUserId(request); // Ensure protected
     await connectDB();
-    const inspections = await Inspection.find().sort({ createdAt: -1 });
+    const inspections = await Inspection.find().sort({ 'header.date': -1 });
     // Mongoose documents need to be serialized. simple JSON stringify/parse or mapping.
     // RRv7 handles JSON response if generic, but helper might be better if we have methods.
     // toJSON() usually works.
@@ -205,7 +205,7 @@ export default function Dashboard() {
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2 text-slate-600">
                                                 <Calendar size={16} />
-                                                {format(new Date(inspection.createdAt), 'MMM d, yyyy')}
+                                                {inspection.header?.date ? format(new Date(inspection.header.date), 'MMM d, yyyy') : 'N/A'}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-slate-600">{inspection.inspectorName}</td>
@@ -257,7 +257,7 @@ export default function Dashboard() {
                                 <div className="flex justify-between items-center">
                                     <div className="flex items-center gap-2 text-slate-600 font-medium">
                                         <Calendar size={16} />
-                                        {format(new Date(inspection.createdAt), 'MMM d, yyyy')}
+                                        {inspection.header?.date ? format(new Date(inspection.header.date), 'MMM d, yyyy') : 'N/A'}
                                     </div>
                                     <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${!inspection.isCompleted ? 'bg-yellow-100 text-yellow-700' :
                                         (inspection.sectionA?.some((i: any) => i.status === 'DEFECTIVE') || inspection.sectionB?.some((i: any) => i.status === 'DEFECTIVE'))
@@ -333,8 +333,8 @@ export default function Dashboard() {
                                                     key={page}
                                                     onClick={() => setCurrentPage(page)}
                                                     className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${currentPage === page
-                                                            ? 'bg-nzema-red text-white'
-                                                            : 'text-slate-700 bg-white border border-slate-300 hover:bg-slate-50'
+                                                        ? 'bg-nzema-red text-white'
+                                                        : 'text-slate-700 bg-white border border-slate-300 hover:bg-slate-50'
                                                         }`}
                                                 >
                                                     {page}
